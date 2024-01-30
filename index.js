@@ -13,37 +13,40 @@ app.use(express.json())
 // put - atualiza a entidade inteira.
 // patch - atualiza os campos.
 
-app.patch("/clientes/:id", (req, res) => {
+app.patch("/clientes/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const customer = req.body;
-    db.updateCustomer(id, customer);
+    await db.updateCustomer(id, customer);
     res.sendStatus(200);
-})
+});
 
-app.delete("/clientes/:id", (req, res) => {
+app.delete("/clientes/:id", async(req, res) => {
     const id = parseInt(req.params.id);
-    db.deleteCustomer(id);
+    await db.deleteCustomer(id);
     res.sendStatus(204);
 });
-app.post("/clientes", (req, res) => {
+//  inserindo dados no db
+app.post("/clientes", async (req, res) => {
     const customer = req.body;
-    db.insertCustomer(customer);
+    await db.insertCustomer(customer);
     res.sendStatus(201);
-})
-
-app.get('/clientes', (request, response) => {
-    response.json(db.selectCustomers())
 });
-
-app.get("/clientes/:id", (req,res) => {
+//  obtendo todos os dados do db
+app.get('/clientes', async (request, response) => {
+    const results = await db.selectCustomers()
+    response.json(results);
+});
+// obtendo dado especifico do db
+app.get("/clientes/:id", async (req,res) => {
     const id = parseInt(req.params.id);
-    res.json(db.selectCustomer(id))
-})
+    const results = await db.selectCustomer(id);
+    res.json(results);
+});
 
 
 app.get("/", (req,res) => {
     res.json({
-        message: "Conseguiu."
+        message: "Conseguiu acessar a raiz."
     });
 });
 
