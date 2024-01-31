@@ -17,21 +17,22 @@ async function selectCustomers() {
     const results = await client.query("SELECT * FROM clientes;");
     return results[0];
 }
+// indo no banco obter cliente especifico
 async function selectCustomer(id) {
     const results = await client.query("SELECT * FROM clientes WHERE id=?;", [id])
     return results[0];
 }
-
+// inserindo cliente
 async function insertCustomer(cliente) {
-    const values = [client.nome, cliente.idade, cliente.uf]
+    const values = [cliente.nome, cliente.idade, cliente.uf];
     await client.query("INSERT INTO clientes(nome,idade,uf) VALUES (?,?,?)", values);
 }
-
+// atualizando cliente passando id
 async function updateCustomer(id, cliente) {
-    const values = [client.nome, cliente.idade, cliente.uf, id]
+    const values = [cliente.nome, cliente.idade, cliente.uf, id]
     await client.query("UPDATE clientes SET nome=?,idade=?,uf=? WHERE id=?", values);
 }
-
+// deletando cliente
 async function deleteCustomer(id) {
     const values = [id]
     await client.query("DELETE FROM clientes WHERE id=?", values);
