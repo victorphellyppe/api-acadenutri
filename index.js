@@ -2,9 +2,13 @@ require("dotenv").config();
 
 const db = require('./db');
 
+const cors = require('cors');
+
 const express = require('express');
 
 const app = express();
+
+app.use(cors());
 
 // body parsing, analizar o corpo
 app.use(express.json())
