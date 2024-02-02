@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const express = require('express');
 
+const jwt = require('jsonwebtoken');
+
 const app = express();
 
 app.use(cors());
@@ -13,6 +15,20 @@ app.use(cors());
 // body parsing, analizar o corpo
 app.use(express.json())
 
+function verifyJWT(req, res, next) {
+    const token = req.headers['x-access-token'];
+    const index = blackList.findIndex(item => item === token);
+    if(index !== -1) return res.status(401).json({message: 'Faça login novamente'}).end();
+    
+    //podendo trabalhar com async await ou callbacks, seguindo o exemplo com callback
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+        if(err) return res.status(401).end();
+
+        req.userId = decoded.userId
+        next();
+    });
+    
+}
 
 // diferença de put vs patch
 // put - atualiza a entidade inteira.
@@ -61,22 +77,39 @@ app.post("/clientes", async (req, res) => {
     }
 });
 //  obtendo todos os dados do db
-app.get('/clientes', async (request, response) => {
-    
-    try {
-        const results = await db.selectCustomers()
-        response.status(200).json({
-            message: 'Clientes obtidos com sucesso!',
-            results
-        });
-    } catch (error) {
-        response.status(500).json({
-            message: 'Error ao obter clientes.'
-           })
-    }
-    
-
+app.get('/clientes', verifyJWT, async (req, res) => {
+    console.log(req.userId + ' fez esta chamada!');
+    res.json([{id: 1, nome: 'luiz' }]);
+    // try {
+    //     const results = await db.selectCustomers()
+    //     response.status(200).json({
+    //         message: 'Clientes obtidos com sucesso!',
+    //         results
+    //     });
+    // } catch (error) {
+    //     response.status(500).json({
+    //         message: 'Error ao obter clientes.'
+    //        })
+    // }
 });
+
+app.post('/login', (req, res) => {
+    // aqui vou no banco verifico se existe e entro no if
+    if(req.body.user === 'luiz' && req.body.password === '123') {
+        const token = jwt.sign({userId: 1}, process.env.SECRET, { expiresIn: 300 })
+        return res.json({ auth: true, token });
+    }
+
+    res.status(401).json({ message: "Não foi possivel fazer o login. "}).end();
+});
+
+const blackList = [];
+
+app.post('/logout', (req, res) => {
+    blackList.push(req.headers['x-access-token']);
+    res.end();
+});
+
 // obtendo dado especifico do db
 app.get("/clientes/:id", async (req,res) => {
     const id = parseInt(req.params.id);
