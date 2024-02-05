@@ -4,11 +4,13 @@ const db = require('./db');
 
 const cors = require('cors');
 
+
 const express = require('express');
 
 const jwt = require('jsonwebtoken');
 
 const app = express();
+
 
 app.use(cors());
 
@@ -114,15 +116,14 @@ app.get('/clientes', verifyJWT, async (req, res) => {
 app.post('/login', async (req, res) => {
     // aqui vou no banco verifico se existe e entro no if
     const { usuario, senha } = req.body;
-
-    // console.log({ usuario, senha }, 'VICTOR');
-
+    
     const results = await db.selectUserForLogin(usuario, senha);
+    console.log(results,'results para userID');
     if(results.length > 0) {
         const token = jwt.sign({userId: 1}, process.env.SECRET, { expiresIn: 300 })
         return res.status(200).json({ 
             auth: true, 
-            token, 
+            token,
             message: "Login efetuado com sucesso!"
         });
     }
@@ -130,12 +131,8 @@ app.post('/login', async (req, res) => {
     return results;
 });
 
-const blackList = [];
-
 app.post('/logout', (req, res) => {
-    // blackList.push(req.headers['x-access-token']);
     const dateTime = new Date();
-
     db.insertToken(req.headers['x-access-token'], dateTime);
     res.end();
 });
