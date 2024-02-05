@@ -134,7 +134,9 @@ app.post('/login', async (req, res) => {
 app.post('/logout', (req, res) => {
     const dateTime = new Date();
     db.insertToken(req.headers['x-access-token'], dateTime);
-    res.end();
+    res.status(200).json({
+        message: "Logout efetuado!"
+    }).end();
 });
 
 // obtendo dado especifico do db
