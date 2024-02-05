@@ -11,7 +11,11 @@ const client = mysql.createPool({
   });
 
 
-
+// indo no banco obter cliente especifico para login
+async function selectUserForLogin(usuario, senha) {
+    const [results] = await client.query("SELECT * FROM clientes WHERE usuario = ? AND senha = ?", [usuario, senha])
+    return results;
+}
 // indo no banco obter os dados
 async function selectCustomers() {
     const results = await client.query("SELECT * FROM clientes;");
@@ -24,8 +28,16 @@ async function selectCustomer(id) {
 }
 // inserindo cliente
 async function insertCustomer(cliente) {
-    const values = [cliente.nome, cliente.idade, cliente.uf];
+    const values = [cliente.nome, cliente.idade, cliente.uf, cliente.usuario, cliente.senha];
     await client.query("INSERT INTO clientes(nome,idade,uf) VALUES (?,?,?)", values);
+}
+// inserindo token
+async function insertToken(token,dateTime) {
+    console.log({
+        token,
+        dateTime
+    });
+    await client.query("INSERT INTO tokens_expirados(token, data) VALUES (?,?)", [token, dateTime]);
 }
 // atualizando cliente passando id
 async function updateCustomer(id, cliente) {
@@ -42,5 +54,7 @@ module.exports = {
     selectCustomer,
     insertCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    selectUserForLogin,
+    insertToken
 }

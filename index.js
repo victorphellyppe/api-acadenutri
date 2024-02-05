@@ -65,6 +65,7 @@ app.delete("/clientes/:id", async(req, res) => {
 //  inserindo dados no db
 app.post("/clientes", async (req, res) => {
     const customer = req.body;
+    console.log('Customer: ', customer);
     try {
         await db.insertCustomer(customer);
         res.status(201).json({
@@ -79,34 +80,63 @@ app.post("/clientes", async (req, res) => {
 //  obtendo todos os dados do db
 app.get('/clientes', verifyJWT, async (req, res) => {
     console.log(req.userId + ' fez esta chamada!');
-    res.json([{id: 1, nome: 'luiz' }]);
-    // try {
-    //     const results = await db.selectCustomers()
-    //     response.status(200).json({
-    //         message: 'Clientes obtidos com sucesso!',
-    //         results
-    //     });
-    // } catch (error) {
-    //     response.status(500).json({
-    //         message: 'Error ao obter clientes.'
-    //        })
-    // }
+    try {
+        const results = await db.selectCustomers();
+        res.status(200).json({
+            message: 'Clientes obtidos com sucesso!',
+            results
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: 'Error ao obter clientes.'
+        });
+    }
 });
 
-app.post('/login', (req, res) => {
-    // aqui vou no banco verifico se existe e entro no if
-    if(req.body.user === 'luiz' && req.body.password === '123') {
-        const token = jwt.sign({userId: 1}, process.env.SECRET, { expiresIn: 300 })
-        return res.json({ auth: true, token });
-    }
+// app.post('/login', async (req, res) => {
+//     // aqui vou no banco verifico se existe e entro no if
+//     console.log(req.body, 'Req.body')
+//     if(req.body.user === 'luiz' && req.body.password === '123') {
+//         const token = jwt.sign({userId: 1}, process.env.SECRET, { expiresIn: 300 })
+//         return res.json({ auth: true, token });
+//     }
+//     // const nome = parseInt(req.params.nome);
 
-    res.status(401).json({ message: "Não foi possivel fazer o login. "}).end();
+//     const results = await db.selectCustomers();
+//     response.status(200).json({
+//         message: 'Clientes obtidos por nome  com sucesso!',
+//         results
+//     });
+
+//     res.status(401).json({ message: "Não foi possivel fazer o login. "}).end();
+// });
+app.post('/login', async (req, res) => {
+    // aqui vou no banco verifico se existe e entro no if
+    const { usuario, senha } = req.body;
+
+    // console.log({ usuario, senha }, 'VICTOR');
+
+    const results = await db.selectUserForLogin(usuario, senha);
+    if(results.length > 0) {
+        const token = jwt.sign({userId: 1}, process.env.SECRET, { expiresIn: 300 })
+        return res.status(200).json({ 
+            auth: true, 
+            token, 
+            message: "Login efetuado com sucesso!"
+        });
+    }
+    res.status(401).json({ message: "Não foi possivel efetuar o login. "}).end()
+    return results;
 });
 
 const blackList = [];
 
 app.post('/logout', (req, res) => {
-    blackList.push(req.headers['x-access-token']);
+    // blackList.push(req.headers['x-access-token']);
+    const dateTime = new Date();
+
+    db.insertToken(req.headers['x-access-token'], dateTime);
     res.end();
 });
 
