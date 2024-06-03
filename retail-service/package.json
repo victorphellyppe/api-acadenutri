@@ -1,0 +1,8 @@
+{
+    "name": "retail-service",
+    "version": "1.0.0",
+    "main": "retail-service.js",
+    "dependencies": {
+      "express": "^4.17.1"
+    }
+  }

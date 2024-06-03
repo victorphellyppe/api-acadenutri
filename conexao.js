@@ -1,12 +1,25 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
-
-const conexao = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    port: 3306,
-    database: 'crud',
-    password: '#V1c70r@JC3'
+const pool = new Pool({
+    host: 'localhost',
+    user: 'postgres',
+    password: '#V1c70r@JC3',
+    database: 'acadenutri',
+    port: 5432,
 });
 
-module.exports =  conexao
+pool.connect((err) => {
+    if (err) {
+        console.error('Erro ao conectar ao banco de dados PostgreSQL:', err.stack);
+        return;
+    }
+    console.log('Conexão com o banco de dados PostgreSQL estabelecida com sucesso!');
+
+    // Iniciar o servidor da aplicação após conectar ao banco de dados
+    app.listen(process.env.PORT, () => {
+        console.log('App is running! (conexao.js)');
+    });
+});
+
+
+module.exports = pool;

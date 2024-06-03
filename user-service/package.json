@@ -1,0 +1,8 @@
+{
+    "name": "user-service",
+    "version": "1.0.0",
+    "main": "user-service.js",
+    "dependencies": {
+      "express": "^4.17.1"
+    }
+  }

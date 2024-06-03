@@ -37,8 +37,8 @@ app.post("/patients", async (req, res) => {
   }
 });
 
-app.get('/pacientes/:id', async (req, res) => {
-    console.log('/PACIENTES');
+app.get('/:id', async (req, res) => {
+    // console.log('/PACIENTES');
     const pacienteId = parseInt(req.params.id);
       if (isNaN(pacienteId)) {
       return res.status(400).json({
@@ -48,7 +48,7 @@ app.get('/pacientes/:id', async (req, res) => {
   
     try {
       const paciente = await db.selectPatient(pacienteId);
-        console.log('dentro do try');
+        // console.log('dentro do try');
       // Verifica se o paciente foi encontrado
       if (!paciente) {
         return res.status(404).json({

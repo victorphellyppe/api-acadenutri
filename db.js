@@ -1,14 +1,108 @@
-const mysql = require('mysql2/promise');
+require("dotenv").config();
+const { Pool } = require('pg');
 
-// const client = mysql.createPool(process.env.CONNECTION_STRING);
-//  criando um pool de conexoes para não precisar abrir e fechar a conexao melhorando a performance
-const client = mysql.createPool({
-    connectionLimit: 10, // Número máximo de conexões no pool
-    host: 'localhost', // ou '127.0.0.1' se estiver local
-    user: 'root',
+
+console.log("Tentando se conectar ao banco de dados...");
+
+const client = new Pool({
+    host: process.env.HOST_DB,
+    user: 'postgres',
     password: '#V1c70r@JC3',
-    database: 'crud'
-  });
+    database: 'acadenutri',
+    port: 5432,
+});
+
+client.on('connect', () => {
+    console.log('Conexão com o banco de dados PostgreSQL estabelecida com sucesso!');
+});
+
+client.on('error', (err) => {
+    console.error('Erro ao conectar ao banco de dados:', err);
+});
+
+/** PACIENTES  */
+
+// insert patient
+async function insertPatient(patient) {
+    const values = [
+        patient.name, 
+        patient.email, 
+        patient.dateofbirth, 
+        patient.gender, 
+        patient.phone, 
+        patient.maritalstatus, 
+        patient.profession, 
+        patient.cpf, 
+        patient.address, 
+        patient.cep, 
+        patient.number, 
+        patient.complement, 
+        patient.state,
+        patient.city,
+        patient.neighborhood,
+        patient.patientpermission,
+        patient.receipts,
+        patient.materials,
+        patient.timestamp,
+        patient.country,
+    ];
+    await client.query("INSERT INTO patients(name,email,dateofbirth,gender,phone,maritalstatus,profession,cpf,address,cep,number,complement,state,city,neighborhood,patientpermission,receipts,materials,timestamp,country) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)", values);
+}  
+
+// select all patients
+async function selectPatients() {
+    const results = await client.query("SELECT * FROM patients;");
+    return results.rows; 
+}
+
+//select patients por id
+async function selectPatient(id) {
+    const results = await client.query("SELECT * FROM patients WHERE id=$1;", [id]);
+    // return results[0];
+    return results.rows; 
+
+}
+
+/** ORDERS */
+
+async function selectOrders() {
+    console.log('selectOrders');
+    try {
+        const results = await client.query("SELECT * FROM orders;");
+        return results.rows;
+    } catch (e) {
+        console.error('Erro ao buscar pedidos:', e);
+        throw e;
+    } 
+
+}
+async function selectOrder(orderNumber) {
+    try {
+        const results = await client.query("SELECT * FROM orders WHERE order_number=$1;", [orderNumber]);
+        return results.rows;
+    } catch (e) {
+        console.error('Erro ao buscar pedidos:', e);
+        throw e;
+    } 
+
+}
+
+// indo no banco obter os dados
+async function selectUsers() {
+    const results = await client.query("SELECT * FROM users;");
+    return results.rows; 
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 // indo no banco obter cliente especifico para login
@@ -56,5 +150,11 @@ module.exports = {
     updateCustomer,
     deleteCustomer,
     selectUserForLogin,
-    insertToken
+    insertToken,
+    selectUsers,
+    insertPatient,
+    selectPatients,
+    selectPatient,
+    selectOrders,
+    selectOrder
 }
