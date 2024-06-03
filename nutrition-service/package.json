@@ -1,0 +1,9 @@
+{
+    "name": "nutrition-service",
+    "version": "1.0.0",
+    "main": "nutrition-service.js",
+    "dependencies": {
+        "express": "^4.17.1",
+        "faker": "^6.6.6"
+    }
+}
