@@ -79,8 +79,6 @@ app.post("/login", async (req, res) => {
   return results;
 });
 
-const blackList = [];
-
 app.post("/logout", (req, res) => {
   const dateTime = new Date();
   db.insertToken(req.headers["x-access-token"], dateTime);
