@@ -98,7 +98,7 @@ app.get("/", (req, res) => {
 
 app.use('/user', createProxyMiddleware({ target: 'http://localhost:3001', changeOrigin: true }));
 app.use('/nutrition',verifyJWT, createProxyMiddleware({ target: 'http://localhost:3002', changeOrigin: true }));
-app.use('/retail', createProxyMiddleware({ target: 'http://localhost:3003', changeOrigin: true }));
+app.use('/retail',verifyJWT, createProxyMiddleware({ target: 'http://localhost:3003', changeOrigin: true }));
 app.use('/product', createProxyMiddleware({ target: 'http://localhost:3007', changeOrigin: true }));
 
 
