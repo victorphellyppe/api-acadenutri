@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { Pool } = require('pg');
 
-
 console.log("Tentando se conectar ao banco de dados...");
 
 const client = new Pool({
@@ -87,44 +86,58 @@ async function selectOrder(orderNumber) {
 
 }
 
-// indo no banco obter os dados
+/** PRODUCTS */
+
+async function insertProduct(product) {
+    const values = [
+        product.active,
+        product.name,
+        product.category,
+        product.system_code,
+        product.cystin_code,
+        product.cost_price,
+        product.sale_price,
+        product.measure,
+        product.amount,
+        product.time_to_prepare,
+        product.description,
+        product.stock,
+        product.datasheet,
+        product.questions,
+        product.observations,
+        product.complements,
+        product.acadenutrimobile
+    ];
+
+    const query = `
+        INSERT INTO products (
+            active, name, category, system_code, cystin_code, cost_price, sale_price,
+            measure, amount, time_to_prepare, description, stock, datasheet, questions,
+            observations, complements, acadenutrimobile
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+        )
+    `;
+
+    try {
+        await client.query(query, values);
+        console.log("Produto inserido com sucesso!");
+    } catch (error) {
+        console.error("Erro ao inserir produto:", error);
+    }
+}
+
+/** Users */
 async function selectUsers() {
     const results = await client.query("SELECT * FROM users;");
     return results.rows; 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// indo no banco obter cliente especifico para login
-async function selectUserForLogin(usuario, senha) {
-    const [results] = await client.query("SELECT * FROM clientes WHERE usuario = ? AND senha = ?", [usuario, senha])
+async function login(email, senha) {
+    const [results] = await client.query("SELECT * FROM users WHERE email = ? AND password = ?", [email, senha]);
     return results;
 }
-// indo no banco obter os dados
-async function selectCustomers() {
-    const results = await client.query("SELECT * FROM clientes;");
-    return results[0];
-}
-// indo no banco obter cliente especifico
-async function selectCustomer(id) {
-    const results = await client.query("SELECT * FROM clientes WHERE id=?;", [id])
-    return results[0];
-}
-// inserindo cliente
-async function insertCustomer(cliente) {
-    const values = [cliente.nome, cliente.idade, cliente.uf, cliente.usuario, cliente.senha];
-    await client.query("INSERT INTO clientes(nome,idade,uf) VALUES (?,?,?)", values);
-}
+
 // inserindo token
 async function insertToken(token,dateTime) {
     console.log({
@@ -133,28 +146,15 @@ async function insertToken(token,dateTime) {
     });
     await client.query("INSERT INTO tokens_expirados(token, data) VALUES (?,?)", [token, dateTime]);
 }
-// atualizando cliente passando id
-async function updateCustomer(id, cliente) {
-    const values = [cliente.nome, cliente.idade, cliente.uf, id]
-    await client.query("UPDATE clientes SET nome=?,idade=?,uf=? WHERE id=?", values);
-}
-// deletando cliente
-async function deleteCustomer(id) {
-    const values = [id]
-    await client.query("DELETE FROM clientes WHERE id=?", values);
-}
+
 module.exports = {
-    selectCustomers,
-    selectCustomer,
-    insertCustomer,
-    updateCustomer,
-    deleteCustomer,
-    selectUserForLogin,
+    login,
     insertToken,
     selectUsers,
     insertPatient,
     selectPatients,
     selectPatient,
     selectOrders,
-    selectOrder
+    selectOrder,
+    insertProduct
 }

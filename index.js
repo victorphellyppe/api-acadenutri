@@ -49,7 +49,7 @@ app.get("/users", async (req, res) => {
     }
 });
 
-app.get('/pacientes', async (req,res) => {
+app.get('/patients', async (req,res) => {
   try {
       const results = await db.selectPatients();
       res.status(200).json({
@@ -227,16 +227,16 @@ app.get('/pacientes', async (req,res) => {
 //   return results;
 // });
 
-// app.post("/logout", (req, res) => {
-//   const dateTime = new Date();
-//   db.insertToken(req.headers["x-access-token"], dateTime);
-//   res
-//     .status(200)
-//     .json({
-//       message: "Logout efetuado!",
-//     })
-//     .end();
-// });
+app.post("/logout", (req, res) => {
+  const dateTime = new Date();
+  db.insertToken(req.headers["x-access-token"], dateTime);
+  res
+    .status(200)
+    .json({
+      message: "Logout efetuado!",
+    })
+    .end();
+});
 
 // obtendo dado especifico do db
 // app.get("/clientes/:id", async (req, res) => {
@@ -254,15 +254,16 @@ app.get('/pacientes', async (req,res) => {
 //   }
 // });
 
-// app.get("/", (req, res) => {
-//     res.send("Conseguiu acessar a raiz.",);
-// });
+app.get("/", (req, res) => {
+    res.send("Conseguiu acessar a raiz.",);
+});
 
 
 
 app.use('/user', createProxyMiddleware({ target: 'http://localhost:3001', changeOrigin: true }));
-app.use('/nutrition', createProxyMiddleware({ target: 'http://localhost:3002', changeOrigin: true }));
+app.use('/nutrition',verifyJWT, createProxyMiddleware({ target: 'http://localhost:3002', changeOrigin: true }));
 app.use('/retail', createProxyMiddleware({ target: 'http://localhost:3003', changeOrigin: true }));
+app.use('/product', createProxyMiddleware({ target: 'http://localhost:3007', changeOrigin: true }));
 
 
 app.listen(3000, () => {
@@ -279,8 +280,8 @@ app.listen(3000, () => {
   // Start Retail Service
   const retailService = require('./retail-service/retail-service');
   retailService.start();
+
+  const productService = require('./product-service/product-service');
+  productService.start();
 });
 
-// app.listen(process.env.PORT, () => {
-//   console.log(`Running na porta: ${ process.env.PORT }`);
-// });
